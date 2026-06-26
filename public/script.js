@@ -522,14 +522,18 @@ async()=>{
 
 
 
-    socket.emit(
+socket.emit(
 
-        "mensaje",
+    "mensaje",
 
-        "📎 Archivo enviado: " +
-        resultado.archivo
+    `
+    📎 Archivo:
+    <a href="${resultado.url}" download>
+    ${resultado.archivo}
+    </a>
+    `
 
-    );
+);
 
 
 

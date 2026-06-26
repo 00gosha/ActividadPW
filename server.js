@@ -5,19 +5,18 @@ const cors = require("cors");
 const multer = require("multer");
 
 
-const app = express();
 
+const app = express();
 
 app.use(cors());
 
 app.use(express.json());
 
 
+
 // Servir frontend
 
-app.use(
-    express.static("public")
-);
+app.use(express.static("public"));
 
 
 
@@ -52,12 +51,54 @@ const io = new Server(server, {
 
 
 
-// Configuración archivos
+
+
+// HISTORIAL DE MENSAJES
+
+
+let historial = {
+
+
+    General: [],
+
+    Programacion: [],
+
+    Videojuegos: [],
+
+    Musica: [],
+
+    Tecnologia: [],
+
+    Deportes: []
+
+
+};
+
+
+
+
+
+
+
+
+
+// CONFIGURACION DE ARCHIVOS
 
 
 const storage = multer.diskStorage({
 
-    destination:"uploads/",
+
+    destination:(req,file,cb)=>{
+
+
+        cb(
+            null,
+            "uploads/"
+        );
+
+
+    },
+
 
 
     filename:(req,file,cb)=>{
@@ -67,8 +108,10 @@ const storage = multer.diskStorage({
 
             null,
 
-            Date.now() +
-            "-" +
+            Date.now()
+            +
+            "-"
+            +
             file.originalname
 
         );
@@ -77,7 +120,9 @@ const storage = multer.diskStorage({
     }
 
 
+
 });
+
 
 
 
@@ -93,29 +138,15 @@ const upload = multer({
 
 
 
-let historial = {
-
-
-    General:[],
-
-    Programacion:[],
-
-    Videojuegos:[],
-
-    Musica:[]
-
-
-};
 
 
 
 
-
-
-
+// SOCKET.IO
 
 
 io.on("connection",(socket)=>{
+
 
 
     console.log(
@@ -126,6 +157,11 @@ io.on("connection",(socket)=>{
 
 
 
+
+
+    // LOGIN
+
+
     socket.on("login",(nombre)=>{
 
 
@@ -134,21 +170,27 @@ io.on("connection",(socket)=>{
 
 
         console.log(
+
             nombre +
             " ingresó al chat"
+
         );
 
 
 
         socket.emit(
+
             "bienvenido",
+
             {
 
             mensaje:
             "Bienvenido " + nombre
 
             }
+
         );
+
 
 
     });
@@ -160,23 +202,47 @@ io.on("connection",(socket)=>{
 
 
 
+
+    // ENTRAR A SALA
+
+
     socket.on("unirseSala",(sala)=>{
 
 
+
+        // Si la sala no existe la crea
+
+        if(!historial[sala]){
+
+
+            historial[sala] = [];
+
+
+        }
+
+
+
+
         socket.join(sala);
+
 
 
         socket.salaActual = sala;
 
 
 
+
         console.log(
+
 
             socket.nombre +
             " entró a " +
             sala
 
+
         );
+
+
 
 
 
@@ -194,6 +260,7 @@ io.on("connection",(socket)=>{
         );
 
 
+
     });
 
 
@@ -204,29 +271,56 @@ io.on("connection",(socket)=>{
 
 
 
+    // ENVIAR MENSAJE
+
+
     socket.on("mensaje",(texto)=>{
 
 
+
+        if(!socket.salaActual){
+
+
+            return;
+
+
+        }
+
+
+
+
+
         const nuevoMensaje = {
+
 
 
             usuario:
             socket.nombre,
 
 
-            texto:texto,
+
+            texto:
+            texto,
+
 
 
             fecha:
             new Date()
 
 
+
         };
+
+
+
 
 
 
         historial[socket.salaActual]
         .push(nuevoMensaje);
+
+
+
 
 
 
@@ -242,6 +336,8 @@ io.on("connection",(socket)=>{
 
 
 
+
+
     });
 
 
@@ -252,19 +348,48 @@ io.on("connection",(socket)=>{
 
 
 
+
+
+
+    // CARGAR HISTORIAL
+
+
     socket.on("mensajesAntiguos",(pagina)=>{
+
+
+
+        if(!socket.salaActual){
+
+
+            return;
+
+
+        }
+
+
+
+
 
 
         const cantidad = 10;
 
 
 
+        const mensajesSala =
+
+        historial[socket.salaActual];
+
+
+
+
+
         const fin =
 
-        historial[socket.salaActual]
-        .length -
+        mensajesSala.length -
 
-        ((pagina-1)*cantidad);
+        ((pagina - 1) * cantidad);
+
+
 
 
 
@@ -274,16 +399,22 @@ io.on("connection",(socket)=>{
 
 
 
+
+
+
+
         const mensajes =
 
-        historial[socket.salaActual]
-        .slice(
+        mensajesSala.slice(
 
             Math.max(0,inicio),
 
             fin
 
         );
+
+
+
 
 
 
@@ -298,6 +429,7 @@ io.on("connection",(socket)=>{
 
 
 
+
     });
 
 
@@ -308,23 +440,52 @@ io.on("connection",(socket)=>{
 
 
 
+
+
+
+    // BUSCAR MENSAJES
+
+
     socket.on("buscar",(texto)=>{
+
+
+
+        if(!socket.salaActual){
+
+
+            return;
+
+
+        }
+
+
+
 
 
         const resultados =
 
+
         historial[socket.salaActual]
         .filter(
 
-            m =>
 
-            m.texto
+            mensaje =>
+
+
+            mensaje.texto
+
             .toLowerCase()
+
             .includes(
+
                 texto.toLowerCase()
+
             )
 
         );
+
+
+
 
 
 
@@ -338,6 +499,8 @@ io.on("connection",(socket)=>{
 
 
 
+
+
     });
 
 
@@ -346,6 +509,12 @@ io.on("connection",(socket)=>{
 
 
 
+
+
+
+
+
+    // DESCONECTAR
 
 
     socket.on("disconnect",()=>{
@@ -374,33 +543,49 @@ io.on("connection",(socket)=>{
 
 
 
-// Subir archivos
+
+
+// SUBIR ARCHIVOS
+
 
 
 app.post(
 
-"/archivo",
+    "/archivo",
 
-upload.single("archivo"),
-
-
-(req,res)=>{
+    upload.single("archivo"),
 
 
-    res.json({
 
-        mensaje:
-        "Archivo subido correctamente",
+    (req,res)=>{
 
 
-        archivo:
-        req.file.filename
+        res.json({
 
 
-    });
+            mensaje:
+
+            "Archivo subido correctamente",
 
 
-}
+
+            archivo:
+
+            req.file.filename,
+
+
+            url:
+
+            "/uploads/" + req.file.filename
+
+
+
+        });
+
+
+
+    }
+
 
 );
 
@@ -412,15 +597,49 @@ upload.single("archivo"),
 
 
 
+// PAGINA PRINCIPAL
 
-server.listen(3000,()=>{
+
+app.get("/",(req,res)=>{
 
 
-    console.log(
+    res.sendFile(
 
-        "Servidor iniciado en puerto 3000"
+        __dirname +
+        "/public/index.html"
 
     );
 
 
 });
+
+
+
+
+
+
+
+
+
+
+
+// INICIAR SERVIDOR
+
+
+server.listen(
+
+    3000,
+
+    ()=>{
+
+
+        console.log(
+
+            "Servidor iniciado en puerto 3000"
+
+        );
+
+
+    }
+
+);

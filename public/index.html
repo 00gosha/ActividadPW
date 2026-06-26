@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Chat en Tiempo Real</title>
+
+
+<link rel="stylesheet" href="style.css">
+
+
+<link rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+
+
+
+<!-- Socket.IO conectado al backend -->
+
+<script src="/socket.io/socket.io.js"></script>
+
+</head>
+
+
+
+<body>
+
+
+
+<div class="contenedor">
+
+
+
+<aside class="sidebar">
+
+
+
+<h2>💬 Chat Web</h2>
+
+
+
+<div class="usuario">
+
+
+<input
+type="text"
+id="nombre"
+placeholder="Nombre de usuario">
+
+
+
+<button id="btnIngresar">
+
+Ingresar
+
+</button>
+
+
+</div>
+
+
+
+
+<hr>
+
+
+
+<h3>Salas</h3>
+
+
+
+<select id="salas">
+
+
+<option value="General">
+
+General
+
+</option>
+
+
+
+<option value="Programacion">
+
+Programacion
+
+</option>
+
+
+
+<option value="Videojuegos">
+
+Videojuegos
+
+</option>
+
+
+
+<option value="Musica">
+
+Musica
+
+</option>
+
+
+
+</select>
+
+
+
+<button id="btnSala">
+
+Cambiar Sala
+
+</button>
+
+
+
+
+
+<hr>
+
+
+
+
+<input
+
+type="text"
+
+id="buscar"
+
+placeholder="Buscar mensaje">
+
+
+
+
+
+</aside>
+
+
+
+
+
+
+
+<main class="chat">
+
+
+
+
+
+<header>
+
+
+
+<h2 id="nombreSala">
+
+Sala General
+
+</h2>
+
+
+
+
+<span id="usuariosOnline">
+
+🟢 En línea
+
+</span>
+
+
+
+</header>
+
+
+
+
+
+
+
+
+
+<section id="mensajes" class="mensajes">
+
+
+</section>
+
+
+
+
+
+
+
+
+<footer>
+
+
+
+<button id="emoji">
+
+😊
+
+</button>
+
+
+
+
+
+<input
+
+type="text"
+
+id="mensaje"
+
+placeholder="Escribe un mensaje...">
+
+
+
+
+
+
+
+<label class="archivo">
+
+
+
+<i class="fa-solid fa-paperclip"></i>
+
+
+
+<input
+
+type="file"
+
+id="archivo"
+
+hidden>
+
+
+
+</label>
+
+
+
+
+
+
+<button id="enviar">
+
+
+<i class="fa-solid fa-paper-plane"></i>
+
+
+</button>
+
+
+
+
+</footer>
+
+
+
+
+
+
+</main>
+
+
+
+
+
+</div>
+
+
+
+
+
+<script src="script.js"></script>
+
+
+
+</body>
+
+
+</html>

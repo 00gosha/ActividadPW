@@ -27,15 +27,7 @@ app.use(
     express.static("uploads")
 );
 
-
-
-
-
 const server = http.createServer(app);
-
-
-
-
 
 const io = new Server(server, {
 
@@ -45,51 +37,25 @@ const io = new Server(server, {
 
 });
 
-
-
-
-
-
-
-
-
 // HISTORIAL DE MENSAJES
 
 
 let historial = {
 
-
     General: [],
-
     Programacion: [],
-
     Videojuegos: [],
-
     Musica: [],
-
     Tecnologia: [],
-
     Deportes: []
 
-
 };
-
-
-
-
-
-
-
-
-
-// CONFIGURACION DE ARCHIVOS
+// fUNCION PARA GUARDAR ARCHIVOS.
 
 
 const storage = multer.diskStorage({
 
-
     destination:(req,file,cb)=>{
-
 
         cb(
             null,
@@ -99,10 +65,7 @@ const storage = multer.diskStorage({
 
     },
 
-
-
     filename:(req,file,cb)=>{
-
 
         cb(
 
@@ -116,15 +79,9 @@ const storage = multer.diskStorage({
 
         );
 
-
     }
 
-
-
 });
-
-
-
 
 const upload = multer({
 
@@ -132,18 +89,7 @@ const upload = multer({
 
 });
 
-
-
-
-
-
-
-
-
-
-
-// SOCKET.IO
-
+// Conexion de Socket.IO
 
 io.on("connection",(socket)=>{
 
@@ -152,22 +98,11 @@ io.on("connection",(socket)=>{
     console.log(
         "Nuevo usuario conectado"
     );
-
-
-
-
-
-
-
     // LOGIN
-
 
     socket.on("login",(nombre)=>{
 
-
         socket.nombre = nombre;
-
-
 
         console.log(
 
@@ -175,8 +110,6 @@ io.on("connection",(socket)=>{
             " ingresó al chat"
 
         );
-
-
 
         socket.emit(
 
@@ -191,24 +124,12 @@ io.on("connection",(socket)=>{
 
         );
 
-
-
     });
-
-
-
-
-
-
-
-
 
     // ENTRAR A SALA
 
 
     socket.on("unirseSala",(sala)=>{
-
-
 
         // Si la sala no existe la crea
 
@@ -220,17 +141,11 @@ io.on("connection",(socket)=>{
 
         }
 
-
-
-
         socket.join(sala);
 
 
 
         socket.salaActual = sala;
-
-
-
 
         console.log(
 
@@ -241,10 +156,6 @@ io.on("connection",(socket)=>{
 
 
         );
-
-
-
-
 
         socket.emit(
 
@@ -263,16 +174,7 @@ io.on("connection",(socket)=>{
 
     });
 
-
-
-
-
-
-
-
-
     // ENVIAR MENSAJE
-
 
     socket.on("mensaje",(texto)=>{
 
@@ -286,44 +188,21 @@ io.on("connection",(socket)=>{
 
         }
 
-
-
-
-
         const nuevoMensaje = {
-
-
 
             usuario:
             socket.nombre,
 
-
-
             texto:
             texto,
-
-
 
             fecha:
             new Date()
 
-
-
         };
-
-
-
-
-
 
         historial[socket.salaActual]
         .push(nuevoMensaje);
-
-
-
-
-
-
 
         io.to(socket.salaActual)
         .emit(
@@ -334,29 +213,10 @@ io.on("connection",(socket)=>{
 
         );
 
-
-
-
-
     });
-
-
-
-
-
-
-
-
-
-
-
-
     // CARGAR HISTORIAL
 
-
     socket.on("mensajesAntiguos",(pagina)=>{
-
-
 
         if(!socket.salaActual){
 
@@ -366,22 +226,11 @@ io.on("connection",(socket)=>{
 
         }
 
-
-
-
-
-
         const cantidad = 10;
-
-
 
         const mensajesSala =
 
         historial[socket.salaActual];
-
-
-
-
 
         const fin =
 
@@ -389,19 +238,9 @@ io.on("connection",(socket)=>{
 
         ((pagina - 1) * cantidad);
 
-
-
-
-
         const inicio =
 
         fin - cantidad;
-
-
-
-
-
-
 
         const mensajes =
 
@@ -413,12 +252,6 @@ io.on("connection",(socket)=>{
 
         );
 
-
-
-
-
-
-
         socket.emit(
 
             "mensajesAntiguos",
@@ -427,22 +260,7 @@ io.on("connection",(socket)=>{
 
         );
 
-
-
-
     });
-
-
-
-
-
-
-
-
-
-
-
-
     // BUSCAR MENSAJES
 
 
@@ -458,16 +276,11 @@ io.on("connection",(socket)=>{
 
         }
 
-
-
-
-
         const resultados =
 
 
         historial[socket.salaActual]
         .filter(
-
 
             mensaje =>
 
@@ -484,11 +297,6 @@ io.on("connection",(socket)=>{
 
         );
 
-
-
-
-
-
         socket.emit(
 
             "resultadoBusqueda",
@@ -497,25 +305,9 @@ io.on("connection",(socket)=>{
 
         );
 
-
-
-
-
     });
 
-
-
-
-
-
-
-
-
-
-
-
     // DESCONECTAR
-
 
     socket.on("disconnect",()=>{
 
@@ -529,25 +321,9 @@ io.on("connection",(socket)=>{
 
     });
 
-
-
-
-
 });
 
-
-
-
-
-
-
-
-
-
-
 // SUBIR ARCHIVOS
-
-
 
 app.post(
 
@@ -555,50 +331,31 @@ app.post(
 
     upload.single("archivo"),
 
-
-
     (req,res)=>{
 
 
         res.json({
-
 
             mensaje:
 
             "Archivo subido correctamente",
 
 
-
             archivo:
 
             req.file.filename,
-
 
             url:
 
             "/uploads/" + req.file.filename
 
-
-
         });
-
-
 
     }
 
-
 );
 
-
-
-
-
-
-
-
-
 // PAGINA PRINCIPAL
-
 
 app.get("/",(req,res)=>{
 
@@ -610,21 +367,9 @@ app.get("/",(req,res)=>{
 
     );
 
-
 });
 
-
-
-
-
-
-
-
-
-
-
 // INICIAR SERVIDOR
-
 
 server.listen(
 
@@ -632,13 +377,11 @@ server.listen(
 
     ()=>{
 
-
         console.log(
 
             "Servidor iniciado en puerto 3000"
 
         );
-
 
     }
 
